@@ -5,7 +5,8 @@ Add link to github in the toml
 
 ## Description
 TODO
-![InterCode-ALFA Diagram](icalfa.jpg)
+![InterCode-ALFA Diagram](https://github.com/westenfelder/InterCode-ALFA/blob/main/icalfa.jpg)
+
 
 ## Installation
 TODO
