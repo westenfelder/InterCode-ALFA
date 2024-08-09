@@ -4,14 +4,14 @@ https://pypi.org/project/icalfa/
 ## Description
 A fork of the InterCode benchmark used to evaluate natural language to Bash command translation.
 TODO
-![InterCode-ALFA Diagram](https://github.com/westenfelder/InterCode-ALFA/blob/main/icalfa.jpg)
+![InterCode-ALFA Diagram](https://raw.githubusercontent.com/westenfelder/InterCode-ALFA/main/icalfa.jpg)
 
 
 ## Installation
 TODO
 
 ```bash
-pip install --upgrade icalfa
+pip install icalfa
 ```
 
 ## Usage
@@ -22,6 +22,7 @@ TODO
 rm -rf dist
 python3 -m build
 python3 -m twine upload --repository pypi dist/*
+pip install --upgrade icalfa
 ```
 
 ## Credits
