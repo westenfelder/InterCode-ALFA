@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "icalfa"
+version = "0.0.6"
+authors = [
+  { name="Finn Westenfelder", email="finnw@mit.edu" },
+]
+description = "A fork of the InterCode benchmark used to evaluate natural language to Bash command translation."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
