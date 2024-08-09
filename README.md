@@ -1,9 +1,8 @@
 # InterCode-ALFA
 https://pypi.org/project/icalfa/
 
-Add link to github in the toml
-
 ## Description
+A fork of the InterCode benchmark used to evaluate natural language to Bash command translation.
 TODO
 ![InterCode-ALFA Diagram](https://github.com/westenfelder/InterCode-ALFA/blob/main/icalfa.jpg)
 

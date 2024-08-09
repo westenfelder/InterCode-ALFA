@@ -10,9 +10,13 @@ authors = [
 ]
 description = "A fork of the InterCode benchmark used to evaluate natural language to Bash command translation."
 readme = "README.md"
+license = {file = "LICENSE.txt"}
 requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+[project.urls]
+Repository = "https://github.com/westenfelder/InterCode-ALFA"
