@@ -27,7 +27,7 @@ pip install icalfa
 - Run the benchmark
 ```python
 import os
-from icalfa import submit_command, get_prompt
+from icalfa import submit_command, get_prompt, get_ground_truth_command
 
 # Store OpenAI key as environment variable 
 os.environ['ICALFA_OPENAI_API_KEY'] = 'your api key'
