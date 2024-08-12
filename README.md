@@ -41,6 +41,10 @@ print(prompt)
 # Submit Bash command for benchmark scoring
 score = submit_command(index=0, command="ls -al")
 print(score) # 0 = incorrect, 1 = correct
+
+# Retrieve ground truth command
+ground_truth_command = get_ground_truth_command(index=0)
+print(ground_truth_command)
 ```
 - Manage Docker containers
 ```bash

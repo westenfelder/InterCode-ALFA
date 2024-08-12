@@ -1,4 +1,3 @@
-
 from icalfa.assets import bash_build_docker
 from icalfa.envs import BashEnv
 import json
@@ -95,3 +94,38 @@ def get_prompt(index):
     obs, done = env.observation, False # obs here is the natural language prompt
 
     return obs
+
+
+def get_ground_truth_command(index):
+    """
+    Retrieve a ground truth command from the InterCode-ALFA benchmark.
+
+    Args:
+        index (int): index in the test set.
+
+    Returns:
+        str: the ground truth command for that test case.
+    
+    Example:
+        ground_truth_command = get_ground_truth_command(0)
+        print(ground_truth_command)
+    """
+
+    # setup
+    image_names = ["intercode-bash-1", "intercode-bash-2", "intercode-bash-3", "intercode-bash-4", "intercode-bash-5"]
+    docker_files = ["nl2bash1.Dockerfile", "nl2bash2.Dockerfile", "nl2bash3.Dockerfile", "nl2bash4.Dockerfile", "nl2bash5.Dockerfile"]
+    data_files = ["nl2bash_fs_1.json", "nl2bash_fs_2.json", "nl2bash_fs_3.json", "nl2bash_fs_4.json", "nl2bash_fs_5.json"]
+    package_root = os.path.dirname(os.path.abspath(__file__))
+    data_files_base = os.path.join(package_root, 'assets/datasets/')
+
+    idx, img_num = index_to_img(index)
+
+    # build env
+    bash_build_docker(image_names[img_num], docker_files[img_num])
+    env = BashEnv(image_names[img_num], data_path=data_files_base+data_files[img_num], traj_dir="logs/", verbose=False)
+
+    obs, info = env.reset(idx) # pass the index to prevent random data selection
+
+    ground_truth_command = env.gold
+
+    return ground_truth_command

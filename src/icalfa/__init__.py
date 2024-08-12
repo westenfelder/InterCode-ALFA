@@ -5,4 +5,4 @@ from icalfa.envs.ic_env import (
     AGENT_OBS, EVAL_OBS, CORRUPT_GOLD, ACTION_EXEC, REWARD
 )
 
-from icalfa.main import submit_command, get_prompt
+from icalfa.main import submit_command, get_prompt, get_ground_truth_command
