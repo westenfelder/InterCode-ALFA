@@ -55,7 +55,7 @@ docker stop $(docker ps -a --filter "name=intercode*" -q)
 docker rm $(docker ps -a --filter "name=intercode*" -q)
 
 # Delete images
-docker rmi $(docker ps -a --filter "name=intercode*" -q)
+docker rmi $(docker images -q)
 ```
 
 
