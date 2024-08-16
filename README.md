@@ -5,7 +5,7 @@ A fork of the InterCode benchmark used to evaluate natural language to Bash comm
 [Dataset](https://huggingface.co/datasets/westenfelder/InterCode-ALFA-Data)  
 [PyPI Package](https://pypi.org/project/icalfa/)  
 
-![InterCode-ALFA Diagram](https://raw.githubusercontent.com/westenfelder/InterCode-ALFA/main/icalfa.jpg)
+![InterCode-ALFA Diagram](https://raw.githubusercontent.com/westenfelder/InterCode-ALFA/main/icalfa.png)
 
 
 ## Installation
