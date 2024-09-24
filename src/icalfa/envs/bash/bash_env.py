@@ -1,5 +1,6 @@
 import math
-
+from openai import OpenAI
+import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 from typing import Dict, List, Tuple
 
@@ -134,9 +135,6 @@ class BashEnv(IntercodeEnv):
         gold_command_output = self.observation_eval
         model_command_output = self.observation
 
-        from openai import OpenAI
-        import os
-
         api_key = os.getenv('ICALFA_OPENAI_API_KEY')
         client = OpenAI(api_key=api_key)
 
@@ -149,8 +147,8 @@ class BashEnv(IntercodeEnv):
                 completion = client.chat.completions.create(
                     model="gpt-4",
                     messages=[
-                    {"role": "system", "content": "You will be given a task and the output of two bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
-                    {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output}, Model Command Output: {model_command_output}"}
+                    {"role": "system", "content": "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
+                    {"role": "user", "content": f"Task: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output}, Model Command Output: {model_command_output}"}
                     ]
                 )
                 result = completion.choices[0].message.content
@@ -163,7 +161,7 @@ class BashEnv(IntercodeEnv):
             else:
                 p3_score = 0
 
-        # OLD BAG OF WORDS METHOD
+        # Old Method
         # try:
         #     vect = TfidfVectorizer()
         #     tfidf = vect.fit_transform([info[AGENT_OBS], info[EVAL_OBS]])
