@@ -98,8 +98,8 @@ class IntercodeEnv(ABC, gym.Env):
             reward, info = 0, {}
             if not self.tool_mode:
                 reward, info = self.get_reward(self.query, self.trajectory)
-            if self.traj_dir is not None:
-                self.save_trajectory()
+            # if self.traj_dir is not None:
+            #     self.save_trajectory()
             info[ACTION_EXEC] = True
             return self.observation, reward, True, info
 

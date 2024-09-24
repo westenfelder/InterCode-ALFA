@@ -140,36 +140,27 @@ class BashEnv(IntercodeEnv):
 
         p3_score = 0
 
-        if gold_command_output == model_command_output:
+        if gold_command == model_command:
             p3_score = 0.33
-        else:
+        elif gold_command_output == model_command_output:
+           p3_score = 0.33
+        else: 
             try:
                 completion = client.chat.completions.create(
-                    model="gpt-4",
+                    model="gpt-4o-2024-05-13",
                     messages=[
-                    {"role": "system", "content": "Your job is to determine the functional equivalence of two Bash commands. You will be given a task, two Bash commands, and the output of executing the two Bash commands. The first command is a ground truth command that accomplishes the task. If the second command also accomplishes the task, return true. Otherwise, return false. The outputs of the commands do not need to be identical, but they do need to convey the same information to a human user. Only output 'true' or 'false'."},
-                    {"role": "user", "content": f"Task: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output}, Model Command Output: {model_command_output}"}
+                    {"role": "system", "content": "Your job is to determine the functional equivalence of two Bash commands. You will be given a task and the output of executing the two Bash commands. The first output is a ground truth that accomplishes the task. If the second output also accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
+                    {"role": "user", "content": f"Task: {prompt}, Ground Truth Command Output: {gold_command_output}, Model Command Output: {model_command_output}"}
                     ]
                 )
                 result = completion.choices[0].message.content
             except Exception as e:
                 result = 0
                 print(f"Error: {e}")
-            
-            if result == 'true':
+            if ('true' in result) or ('True' in result):
                 p3_score = 0.33
             else:
                 p3_score = 0
-
-        # Old Method
-        # try:
-        #     vect = TfidfVectorizer()
-        #     tfidf = vect.fit_transform([info[AGENT_OBS], info[EVAL_OBS]])
-        #     answer_similarity = tfidf * tfidf.T
-        #     info["answer_similarity"] = answer_similarity.toarray()[0][1]
-        # except:
-        #     info["answer_similarity"] = 1 if info[AGENT_OBS] == info[EVAL_OBS] else 0
-        # p3_score = round(0.33 * info["answer_similarity"], 2)
 
         info[REWARD]["answer_similarity"] = p3_score
         reward += p3_score
