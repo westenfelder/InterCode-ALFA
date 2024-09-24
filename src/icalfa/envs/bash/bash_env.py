@@ -147,7 +147,7 @@ class BashEnv(IntercodeEnv):
                 completion = client.chat.completions.create(
                     model="gpt-4",
                     messages=[
-                    {"role": "system", "content": "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
+                    {"role": "system", "content": "Your job is to determine the functional equivalence of two Bash commands. You will be given a task, two Bash commands, and the output of executing the two Bash commands. The first command is a ground truth command that accomplishes the task. If the second command also accomplishes the task, return true. Otherwise, return false. The outputs of the commands do not need to be identical, but they do need to convey the same information to a human user. Only output 'true' or 'false'."},
                     {"role": "user", "content": f"Task: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output}, Model Command Output: {model_command_output}"}
                     ]
                 )
