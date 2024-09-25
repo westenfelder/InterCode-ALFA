@@ -33,33 +33,38 @@ def submit_command(index, command):
         print(score)
     """
 
-    # setup
-    image_names = ["intercode-bash-1", "intercode-bash-2", "intercode-bash-3", "intercode-bash-4", "intercode-bash-5"]
-    docker_files = ["nl2bash1.Dockerfile", "nl2bash2.Dockerfile", "nl2bash3.Dockerfile", "nl2bash4.Dockerfile", "nl2bash5.Dockerfile"]
-    data_files = ["nl2bash_fs_1.json", "nl2bash_fs_2.json", "nl2bash_fs_3.json", "nl2bash_fs_4.json", "nl2bash_fs_5.json"]
+    try:
+        # setup
+        image_names = ["intercode-bash-1", "intercode-bash-2", "intercode-bash-3", "intercode-bash-4", "intercode-bash-5"]
+        docker_files = ["nl2bash1.Dockerfile", "nl2bash2.Dockerfile", "nl2bash3.Dockerfile", "nl2bash4.Dockerfile", "nl2bash5.Dockerfile"]
+        data_files = ["nl2bash_fs_1.json", "nl2bash_fs_2.json", "nl2bash_fs_3.json", "nl2bash_fs_4.json", "nl2bash_fs_5.json"]
 
-    package_root = os.path.dirname(os.path.abspath(__file__))
-    data_files_base = os.path.join(package_root, 'assets/datasets/')
+        package_root = os.path.dirname(os.path.abspath(__file__))
+        data_files_base = os.path.join(package_root, 'assets/datasets/')
 
-    idx, img_num = index_to_img(index)
+        idx, img_num = index_to_img(index)
 
-    # build env
-    bash_build_docker(image_names[img_num], docker_files[img_num])
-    env = BashEnv(image_names[img_num], data_path=data_files_base+data_files[img_num], traj_dir="logs/", verbose=False)
+        # build env
+        bash_build_docker(image_names[img_num], docker_files[img_num])
+        env = BashEnv(image_names[img_num], data_path=data_files_base+data_files[img_num], traj_dir="logs/", verbose=False)
 
-    obs, info = env.reset(idx) # pass the index to prevent random data selection
-    obs, done = env.observation, False # obs here is the natural language prompt
+        obs, info = env.reset(idx) # pass the index to prevent random data selection
+        obs, done = env.observation, False # obs here is the natural language prompt
 
-    while not done:
-        obs, reward, done, info = env.step(command)
-        obs, reward, done, info = env.step("submit")
+        while not done:
+            obs, reward, done, info = env.step(command)
+            obs, reward, done, info = env.step("submit")
 
-    info_json = json.dumps(info, indent=4)
-    
-    if reward == 1:
-        return 1
-    else:
+        info_json = json.dumps(info, indent=4)
+        
+        if reward == 1:
+            return 1
+        else:
+            return 0
+    except:
         return 0
+
+
 
 
 def get_prompt(index):

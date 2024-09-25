@@ -201,7 +201,10 @@ class BashEnv(IntercodeEnv):
         status_lst = status.split()
         changes = []
         for i in range(0, len(status_lst), 2):
-            changes.append((status_lst[i+1], status_lst[i]))
+            try:
+                changes.append((status_lst[i+1], status_lst[i]))
+            except:
+                changes = changes
         return changes
 
     def simplify_path(self, current: str, changed: str) -> str:
