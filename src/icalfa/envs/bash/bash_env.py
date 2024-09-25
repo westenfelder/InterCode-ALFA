@@ -150,12 +150,12 @@ class BashEnv(IntercodeEnv):
                     model="gpt-4-0613",
                     messages=[
                     {"role": "system", "content": "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
-                    {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output}, Model Command Output: {model_command_output}"}
+                    {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command[:5000]}, Ground Truth Command Output: {gold_command_output[:5000]}, Model Command Output: {model_command_output}"}
                     ]
                 )
                 result = completion.choices[0].message.content
             except Exception as e:
-                result = 0
+                result = 'False'
                 print(f"Error: {e}")
             if ('true' in result) or ('True' in result):
                 p3_score = 0.33
