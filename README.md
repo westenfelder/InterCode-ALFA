@@ -71,7 +71,7 @@ docker rmi $(docker images -q)
 
 ## Building
 ```bash
-# update version in pyproject.toml
+# update version in pyproject.toml and __init__.py
 rm -rf dist
 python3 -m build
 python3 -m twine upload --repository pypi dist/*
