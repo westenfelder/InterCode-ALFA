@@ -30,11 +30,16 @@ class BashEnv(IntercodeEnv):
 
         # Establish connection with evaluation container
         self.ctr_name_eval = f"{self.image_name}_ic_ctr_eval"
+        self.ctr_name_agent = f"{self.image_name}_ic_ctr"
         self.container_eval = get_container(self.ctr_name_eval, self.image_name)
+        self.container_agent = get_container(self.ctr_name_agent, self.image_name)
     
     def reset_container(self) -> None:
         self.workdir = "/"
-        exit_code, output = self.container.exec_run(self.clean_cmd(GIT_RESET_SCRIPT))
+        exit_code, output = self.container_eval.exec_run(self.clean_cmd(GIT_RESET_SCRIPT))
+        if exit_code != 0:
+            raise RuntimeError(f"Failed to reset `{self.ctr_name_eval}` container successfully: {output}")
+        exit_code, output = self.container_agent.exec_run(self.clean_cmd(GIT_RESET_SCRIPT))
         if exit_code != 0:
             raise RuntimeError(f"Failed to reset `{self.ctr_name_agent}` container successfully: {output}")
     
@@ -135,9 +140,6 @@ class BashEnv(IntercodeEnv):
         gold_command_output = self.observation_eval
         model_command_output = self.observation
 
-        api_key = os.getenv('ICALFA_OPENAI_API_KEY')
-        client = OpenAI(api_key=api_key)
-
         p3_score = 0
 
         if gold_command == model_command:
@@ -145,22 +147,23 @@ class BashEnv(IntercodeEnv):
         elif gold_command_output == model_command_output:
            p3_score = 0.33
         else: 
+            api_key = os.getenv('ICALFA_OPENAI_API_KEY')
+            client = OpenAI(api_key=api_key)
+            result = "false"
             try:
                 completion = client.chat.completions.create(
                     model="gpt-4-0613",
                     messages=[
                     {"role": "system", "content": "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
-                    {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command[:5000]}, Ground Truth Command Output: {gold_command_output[:5000]}, Model Command Output: {model_command_output}"}
+                    {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output[:1000]}, Model Command Output: {model_command_output[:1000]}"}
                     ]
                 )
                 result = completion.choices[0].message.content
             except Exception as e:
-                result = 'False'
-                print(f"Error: {e}")
+                raise e
             if ('true' in result) or ('True' in result):
                 p3_score = 0.33
-            else:
-                p3_score = 0
+
 
         # try:
         #     vect = TfidfVectorizer()
@@ -201,10 +204,7 @@ class BashEnv(IntercodeEnv):
         status_lst = status.split()
         changes = []
         for i in range(0, len(status_lst), 2):
-            try:
-                changes.append((status_lst[i+1], status_lst[i]))
-            except:
-                changes = changes
+            changes.append((status_lst[i+1], status_lst[i]))
         return changes
 
     def simplify_path(self, current: str, changed: str) -> str:

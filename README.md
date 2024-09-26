@@ -27,29 +27,6 @@ pip install icalfa
 - Run the benchmark
 ```python
 import os
-from icalfa import submit_command, get_prompt, get_ground_truth_command
-
-# Store OpenAI key as environment variable 
-os.environ['ICALFA_OPENAI_API_KEY'] = 'your api key'
-
-# Retrieve natural language prompt
-prompt = get_prompt(index=0)
-print(prompt)
-
-# Convert natural language prompt to Bash command here
-
-# Submit Bash command for benchmark scoring
-score = submit_command(index=0, command="ls -al")
-print(score) # 0 = incorrect, 1 = correct
-
-# Retrieve ground truth command
-ground_truth_command = get_ground_truth_command(index=0)
-print(ground_truth_command)
-```
-
-- Alternatively download the dataset separately and run the benchmark
-```python
-import os
 from icalfa import submit_command
 from datasets import load_dataset
 
