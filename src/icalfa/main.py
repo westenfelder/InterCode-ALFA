@@ -1,5 +1,6 @@
 from icalfa.assets import bash_build_docker
 from icalfa.envs import BashEnv
+import subprocess
 import json
 import os
 
@@ -62,5 +63,18 @@ def submit_command(index, command):
             return 0
     except Exception as e:
         print(f"Benchmark Error: {e}")
-        print(f"Recommend stopping and deleting Docker containers.")
+        print(f"Attempting to reset container.")
+        try:
+            result = subprocess.run("docker stop $(docker ps -a --filter \"name=intercode*\" -q)", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            if result.returncode == 0:
+                result = subprocess.run("docker rm $(docker ps -a --filter \"name=intercode*\" -q)", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                if result.returncode == 0:
+                    print("Reset container successfully.")
+                else:
+                    print(f"Failed to reset container. Recommend manually rebuilding Docker containers.")
+            else:
+                print(f"Failed to reset container. Recommend manually rebuilding Docker containers.")
+        except Exception as e2:
+            print(f"Failed to reset container. Recommend manually rebuilding Docker containers. Error: {e2}")
+        print("Error results in score of zero.")
         return 0
