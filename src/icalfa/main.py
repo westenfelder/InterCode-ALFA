@@ -17,7 +17,7 @@ def index_to_img(index):
     
     raise ValueError("Index out of allowable range")
 
-def submit_command(index, command):
+def submit_command(index, command, eval_mode="tfidf", eval_param=0.9):
     """
     Test a command against the InterCode-ALFA benchmark.
 
@@ -46,7 +46,7 @@ def submit_command(index, command):
 
         # build env
         bash_build_docker(image_names[img_num], docker_files[img_num])
-        env = BashEnv(image_names[img_num], data_path=data_files_base+data_files[img_num], traj_dir="logs/", verbose=False)
+        env = BashEnv(image_names[img_num], data_path=data_files_base+data_files[img_num], traj_dir="logs/", verbose=False, eval_mode=eval_mode, eval_param=eval_param)
 
         obs, info = env.reset(idx) # pass the index to prevent random data selection
         obs, done = env.observation, False # obs here is the natural language prompt

@@ -68,7 +68,7 @@ class BashEnv(IntercodeEnv):
         if is_cd_flag and self.info[ACTION_EXEC]:
             self.workdir = new_path
             
-    def get_reward(self, prompt, trajectory) -> Tuple[float, Dict]:
+    def get_reward(self, prompt, trajectory, eval_mode, eval_param) -> Tuple[float, Dict]:
         """
         The reward currently is calculated as a weighted sum of the following:
         - 0.33: (File System Diff) Difference in file system states between agent, gold command
@@ -147,33 +147,34 @@ class BashEnv(IntercodeEnv):
         elif gold_command_output == model_command_output:
            p3_score = 0.33
         else: 
-            api_key = os.getenv('ICALFA_OPENAI_API_KEY')
-            client = OpenAI(api_key=api_key)
-            result = "false"
-            try:
-                completion = client.chat.completions.create(
-                    model="gpt-4-0613",
-                    messages=[
-                    {"role": "system", "content": "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
-                    {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output[:1000]}, Model Command Output: {model_command_output[:1000]}"}
-                    ],
-                    temperature=0,
-                    seed=123,
-                )
-                result = completion.choices[0].message.content
-            except Exception as e:
-                raise e
-            if ('true' in result) or ('True' in result):
-                p3_score = 0.33
-
-        # try:
-        #     vect = TfidfVectorizer()
-        #     tfidf = vect.fit_transform([info[AGENT_OBS], info[EVAL_OBS]])
-        #     answer_similarity = tfidf * tfidf.T
-        #     info["answer_similarity"] = answer_similarity.toarray()[0][1]
-        # except:
-        #     info["answer_similarity"] = 1 if info[AGENT_OBS] == info[EVAL_OBS] else 0
-        # p3_score = round(0.33 * info["answer_similarity"], 2)
+            if eval_mode == "tfidf":
+                try:
+                    vect = TfidfVectorizer()
+                    tfidf = vect.fit_transform([info[AGENT_OBS], info[EVAL_OBS]])
+                    answer_similarity = tfidf * tfidf.T
+                    info["answer_similarity"] = answer_similarity.toarray()[0][1]
+                except:
+                    info["answer_similarity"] = 1 if info[AGENT_OBS] == info[EVAL_OBS] else 0
+                p3_score = round(0.33 * info["answer_similarity"], 2)
+            elif eval_mode == "gpt":
+                api_key = os.getenv('ICALFA_OPENAI_API_KEY')
+                client = OpenAI(api_key=api_key)
+                result = "false"
+                try:
+                    completion = client.chat.completions.create(
+                        model="gpt-4-0613",
+                        messages=[
+                        {"role": "system", "content": "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
+                        {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output[:1000]}, Model Command Output: {model_command_output[:1000]}"}
+                        ],
+                        temperature=0,
+                        seed=123,
+                    )
+                    result = completion.choices[0].message.content
+                except Exception as e:
+                    raise e
+                if ('true' in result) or ('True' in result):
+                    p3_score = 0.33
 
         info[REWARD]["answer_similarity"] = p3_score
         reward += p3_score

@@ -79,6 +79,11 @@ class IntercodeEnv(ABC, gym.Env):
         self.logger.info("Environment Initialized")
         if not self.tool_mode:
             self.logger.info("* Note *: `reset` should be explicitly called to load new task episode")
+
+        if "eval_mode" in self.kwargs:
+            self.eval_mode = self.kwargs["eval_mode"]
+        if "eval_param" in self.kwargs:
+            self.eval_param = self.kwargs["eval_param"]
     
     def step(self, action: str) -> Tuple[str, int, bool, Dict]:
         """
@@ -97,7 +102,7 @@ class IntercodeEnv(ABC, gym.Env):
         if action == "submit":
             reward, info = 0, {}
             if not self.tool_mode:
-                reward, info = self.get_reward(self.query, self.trajectory)
+                reward, info = self.get_reward(self.query, self.trajectory, self.eval_mode, self.eval_param)
             # if self.traj_dir is not None:
             #     self.save_trajectory()
             info[ACTION_EXEC] = True
@@ -196,7 +201,7 @@ class IntercodeEnv(ABC, gym.Env):
         raise NotImplementedError
     
     @abstractmethod
-    def get_reward(self, prompt, trajectory) -> Tuple[float, Dict]:
+    def get_reward(self, prompt, trajectory, eval_mode, eval_param) -> Tuple[float, Dict]:
         """
         Get reward value at current step of environment
 
