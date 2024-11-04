@@ -17,7 +17,7 @@ def index_to_img(index):
     
     raise ValueError("Index out of allowable range")
 
-def submit_command(index, command, eval_mode="tfidf", eval_param=0.9):
+def submit_command(index, command, eval_mode="openai", eval_param="gpt-4-0613"):
     """
     Test a command against the InterCode-ALFA benchmark.
 

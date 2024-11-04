@@ -1,4 +1,6 @@
 import math
+import json
+import requests
 from openai import OpenAI
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -147,6 +149,7 @@ class BashEnv(IntercodeEnv):
         elif gold_command_output == model_command_output:
            p3_score = 0.33
         else: 
+            # Method used in original InterCode paper
             if eval_mode == "tfidf":
                 try:
                     vect = TfidfVectorizer()
@@ -156,13 +159,69 @@ class BashEnv(IntercodeEnv):
                 except:
                     info["answer_similarity"] = 1 if info[AGENT_OBS] == info[EVAL_OBS] else 0
                 p3_score = round(0.33 * info["answer_similarity"], 2)
-            elif eval_mode == "gpt":
+
+            # Embedding-based command output comparison
+            elif eval_mode == "embed":
+                from scipy.spatial.distance import cosine
+                def get_embedding(input_text):
+                    url = "http://localhost:11434/api/embeddings"
+                    payload = json.dumps({
+                        "model": "mxbai-embed-large",
+                        "prompt": input_text,
+                        "temperature": 0,
+                        "seed": 123
+                    })
+                    response = requests.post(url, data=payload)
+                    if response.status_code != 200:
+                        raise Exception(f"Error creating request: {response.text}")
+                    else:
+                        response_json = response.json()
+                        embedding = response_json["embedding"]
+                        return embedding
+                # handle case where output is empty resulting in empty embedding, caught above if both are empty
+                if gold_command_output == "" or model_command_output == "":
+                    p3_score = 0
+                else:
+                    ground_truth_embedding = get_embedding(gold_command_output[:1000])
+                    model_embedding = get_embedding(model_command_output[:1000])
+                    similarity = 1 - cosine(ground_truth_embedding, model_embedding)
+                    if similarity > eval_param:
+                        p3_score = 0.33
+
+            # Local LLM command output comparison
+            elif eval_mode == "ollama":
+                result = "false"
+                try:
+                    url = "http://localhost:11434/api/chat"
+                    payload = json.dumps({
+                        "model": eval_param,
+                        "messages": [
+                            {'role': 'system', 'content': "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
+                            {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output[:1000]}, Model Command Output: {model_command_output[:1000]}"}
+                        ],
+                        "stream": False,
+                        "temperature": 0,
+                        "seed": 123
+                    })
+                    response = requests.post(url, data=payload)
+                    if response.status_code != 200:
+                        raise Exception(f"Error creating request: {response.text}")
+                    else:
+                        response_json = response.json()
+                        result = response_json['message']['content']
+                except Exception as e:
+                    raise e
+                if ('true' in result) or ('True' in result):
+                    p3_score = 0.33
+
+            # OpenAI GPT command output comparison
+            elif eval_mode == "openai":
                 api_key = os.getenv('ICALFA_OPENAI_API_KEY')
                 client = OpenAI(api_key=api_key)
                 result = "false"
                 try:
                     completion = client.chat.completions.create(
-                        model="gpt-4-0613",
+                        model=eval_param,
                         messages=[
                         {"role": "system", "content": "You will be given a task, two Bash commands, and the output of the two Bash commands. The first command is the ground truth. If the second command accomplishes the task, return true. Otherwise, return false. Only output 'true' or 'false'."},
                         {"role": "user", "content": f"Prompt: {prompt}, Ground Truth Command: {gold_command}, Model Command {model_command}, Ground Truth Command Output: {gold_command_output[:1000]}, Model Command Output: {model_command_output[:1000]}"}

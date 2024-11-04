@@ -21,6 +21,15 @@ source icalfa-venv/bin/activate
 ```bash
 pip install icalfa
 ```
+- [Optional] If you want to use a local LLM, install Ollama
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull llama3.1:70b
+```
+- [Optional] If you want to use the embedding comparison method, install mxbai-embed-large
+```bash
+ollama pull mxbai-embed-large
+```
 
 
 ## Usage
@@ -54,6 +63,22 @@ for index, row in enumerate(dataset):
 
 # Print the benchmark result
 print(score/len(dataset))
+```
+
+- submit_command parameters
+```python
+# By default icalfa uses OpenAI's GPT-4 model and expects an API key
+submit_command(index, command, eval_mode="openai", eval_param="gpt-4-0613")
+
+# A local model can be used via Ollama
+submit_command(index, command, eval_mode="ollama", eval_param="llama3.1:70b")
+
+# You can also test the original method used in Princeton's InterCode benchmark
+submit_command(index, command, eval_mode="tfidf")
+
+# An embedding based comparison method is also available
+# This uses the mxbai-embed-large model via Ollama, with the eval_param specifying the similarity threshold
+submit_command(index, command, eval_mode="embed", eval_param=0.75)
 ```
 
 - Manage Docker containers
