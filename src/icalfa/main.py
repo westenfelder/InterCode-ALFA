@@ -6,7 +6,7 @@ import os
 
 def index_to_img(index):
     index = int(index)
-    splits = [46, 49, 57, 23, 18] # intercode-ALFA indices
+    splits = [153, 49, 57, 23, 18]
     cumsum = 0
 
     for img_num, count in enumerate(splits, start=0):
