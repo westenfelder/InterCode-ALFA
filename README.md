@@ -5,12 +5,14 @@ A fork of the InterCode benchmark used to evaluate natural language to Bash comm
 [HuggingFace Dataset](https://huggingface.co/datasets/westenfelder/NL2SH-ALFA)  
 [PyPI Package](https://pypi.org/project/icalfa/)  
 
+**Note: This package currently only supports Linux. Our code has been tested on Ubuntu 20.04 with Python 3.10 and PyTorch 2.6.0+cu124.**
+
 ![InterCode-ALFA Diagram](https://raw.githubusercontent.com/westenfelder/InterCode-ALFA/main/icalfa.png)
 
 
 ## Installation
 - Install Docker Engine - [Instructions](https://docs.docker.com/engine/install/)
-- Configure Docker for non-sudo users - [Instructions](https://docs.docker.com/engine/install/linux-postinstall/)
+- Configure Docker for non-root users - [Instructions](https://docs.docker.com/engine/install/linux-postinstall/)
 - Create a python virtual environment
 ```bash
 apt install python3.12-venv
